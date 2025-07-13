@@ -404,12 +404,16 @@
                 <div class="result-card">
                     <h3 class="text-xl font-semibold text-pink-600 mb-3">🎁 사은품 혜택 (예상 현금)</h3>
                     <p class="result-label summary-item">현금 사은품: <span id="giftCash" class="result-value">0</span> 원</p>
-                       <p class="text-xs text-pink-500 mt-1">* 사은품 정보는 변동될 수 있으니 가입 시점에 반드시 재확인 바랍니다.</p>
+                        <p class="text-xs text-pink-500 mt-1">* 사은품 정보는 변동될 수 있으니 가입 시점에 반드시 재확인 바랍니다.</p>
                 </div>
 
                 <div class="result-card">
                     <h3 class="text-xl font-semibold text-pink-600 mb-3">초기 설치 비용 (선택한 모든 유선 서비스 기준)</h3>
-                    <p class="result-label">예상 총 설치비: <span id="installationCostResult" class="result-value text-lg">0</span> 원</p>
+                    <div id="installationCostBreakdown" class="space-y-1 mb-2">
+                        <!-- JS will populate this -->
+                    </div>
+                    <hr class="my-2 border-slate-200">
+                    <p class="result-label font-semibold text-lg">예상 총 설치비: <span id="installationCostResult" class="result-value text-lg">0</span> 원</p>
                     <p class="text-xs text-slate-500 mt-1">* 선택하신 설치 시점(평일/주말) 및 서비스 조합에 따라 계산됩니다. 프로모션으로 면제될 수 있습니다.</p>
                 </div>
             </div>
@@ -468,27 +472,27 @@
     <script>
         // --- Data Definitions ---
         const lguMobilePlans = [
-            { "plan_name": "5G 시그니처", "network_type": "5G", "price": 130000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/Z202205253" },
-            { "plan_name": "5G 프리미어 슈퍼", "network_type": "5G", "price": 115000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/Z202205251" },
-            { "plan_name": "5G 프리미어 플러스", "network_type": "5G", "price": 105000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/Z202205252" },
-            { "plan_name": "5G 프리미어 레귤러", "network_type": "5G", "price": 95000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000433" },
+            { "plan_name": "5G 시그니처", "network_type": "5G", "price": 130000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0002534" },
+            { "plan_name": "5G 프리미어 슈퍼", "network_type": "5G", "price": 115000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0001804" },
+            { "plan_name": "5G 프리미어 플러스", "network_type": "5G", "price": 105000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000410" },
+            { "plan_name": "5G 프리미어 레귤러", "network_type": "5G", "price": 95000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0001803" },
             { "plan_name": "5G 프리미어 에센셜", "network_type": "5G", "price": 85000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000409" },
-            { "plan_name": "5G 스탠다드", "network_type": "5G", "price": 75000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000415" },
-            { "plan_name": "5G 스탠다드 에센셜", "network_type": "5G", "price": 70000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000784" },
-            { "plan_name": "추가 요금 걱정 없는 데이터 69", "network_type": "LTE", "price": 69000, "url": "https://www.lguplus.com/mobile/plan/mplan/lte-all/lte-unlimited/LPZ0000464" },
-            { "plan_name": "5G 데이터 슈퍼", "network_type": "5G", "price": 68000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000781" },
-            { "plan_name": "5G 데이터 플러스", "network_type": "5G", "price": 66000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000782" },
-            { "plan_name": "5G 데이터 레귤러", "network_type": "5G", "price": 63000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000783" },
-            { "plan_name": "5G 심플+", "network_type": "5G", "price": 61000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0002860" },
-            { "plan_name": "5G 베이직+", "network_type": "5G", "price": 59000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ1001268" },
-            { "plan_name": "5G 라이트+", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000437" },
-            { "plan_name": "5G 복지 55 (복지할인 대상자)", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/" },
-            { "plan_name": "5G 슬림+", "network_type": "5G", "price": 47000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ0000487" },
-            { "plan_name": "5G 라이트 청소년 (만 18세 이하)", "network_type": "5G", "price": 45000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/" },
-            { "plan_name": "5G 키즈 45 (만 12세 이하)", "network_type": "5G", "price": 45000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/" },
-            { "plan_name": "5G 키즈 39 (만 12세 이하)", "network_type": "5G", "price": 39000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/" },
-            { "plan_name": "5G 미니", "network_type": "5G", "price": 37000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ1000325" },
-            { "plan_name": "LTE 데이터 33", "network_type": "LTE", "price": 33000, "url": "https://www.lguplus.com/mobile/plan/mplan/lte-all/" }
+            { "plan_name": "5G 스탠다드", "network_type": "5G", "price": 75000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0000408" },
+            { "plan_name": "5G 스탠다드 에센셜", "network_type": "5G", "price": 70000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002859" },
+            { "plan_name": "추가 요금 걱정 없는 데이터 69", "network_type": "LTE", "price": 69000, "url": "https://www.lguplus.com/mobile/plan/mplan/lte-all/lte-unlimited/LPZ0001400" },
+            { "plan_name": "5G 데이터 슈퍼", "network_type": "5G", "price": 68000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002858" },
+            { "plan_name": "5G 데이터 플러스", "network_type": "5G", "price": 66000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002857" },
+            { "plan_name": "5G 데이터 레귤러", "network_type": "5G", "price": 63000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002856" },
+            { "plan_name": "5G 심플+", "network_type": "5G", "price": 61000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002860" },
+            { "plan_name": "5G 베이직+", "network_type": "5G", "price": 59000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002855" },
+            { "plan_name": "5G 라이트+", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0001801" },
+            { "plan_name": "5G 복지 55 (복지할인 대상자)", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-welfare/LPZ0002861" },
+            { "plan_name": "5G 슬림+", "network_type": "5G", "price": 47000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0001799" },
+            { "plan_name": "5G 라이트 청소년 (만 18세 이하)", "network_type": "5G", "price": 45000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-youth/LPZ0000417" },
+            { "plan_name": "5G 키즈 45 (만 12세 이하)", "network_type": "5G", "price": 45000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-youth/LPZ0002811" },
+            { "plan_name": "5G 키즈 39 (만 12세 이하)", "network_type": "5G", "price": 39000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-youth/LPZ0002810" },
+            { "plan_name": "5G 미니", "network_type": "5G", "price": 37000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002854" },
+            { "plan_name": "LTE 데이터 33", "network_type": "LTE", "price": 33000, "url": "https://www.lguplus.com/mobile/plan/mplan/lte-all/lte-data/LPZ0000284" }
         ];
 
         const lguData = {
@@ -668,6 +672,7 @@
         const cctvCostSummaryContainerEl = document.getElementById('cctvCostSummaryContainer');
         const cctvBaseCostDisplayEl = document.getElementById('cctvBaseCostDisplay');
         const finalMonthlyCostEl = document.getElementById('finalMonthlyCost');
+        const installationCostBreakdownEl = document.getElementById('installationCostBreakdown');
         const installationCostResultEl = document.getElementById('installationCostResult');
         const giftCashEl = document.getElementById('giftCash');
         const mobileDiscountDetailsContainerEl = document.getElementById('mobileDiscountDetailsContainer');
@@ -1130,7 +1135,7 @@
                 mobileDiscountDetailsContainerEl.classList.add('hidden');
             }
 
-            // --- 4. Calculate Other Benefits (Gifts) ---
+            // --- 4. Calculate Other Benefits (Gifts) & Installation ---
             let giftCashAmount = 0;
             if (internetKey !== 'none') {
                 const internetSpeedType = currentInternetDetails.type; // "100M", "500M", "1G"
@@ -1147,11 +1152,15 @@
                 }
             }
 
-            let calculatedInstallationFee = 0;
+            const CCTV_INSTALL_FEE = 14200;
+            let baseInstallFee = 0;
             const installKeyToLookup = determineInstallationKey(internetKey !== 'none', tvBase > 0, phoneBase > 0, finalAdditionalTvCost > 0);
-            if(installKeyToLookup && lguData.installation_fees[installKeyToLookup]){
-                calculatedInstallationFee = lguData.installation_fees[installKeyToLookup][installationTime] || 0;
+            if (installKeyToLookup && lguData.installation_fees[installKeyToLookup]) {
+                baseInstallFee = lguData.installation_fees[installKeyToLookup][installationTime] || 0;
             }
+            const cctvInstallFee = (cctvKey !== 'none') ? CCTV_INSTALL_FEE : 0;
+            const calculatedInstallationFee = baseInstallFee + cctvInstallFee;
+
 
             // --- 5. Display Results ---
             // Update New Summary Card
@@ -1205,7 +1214,15 @@
             const discountTypeDisplayMap = { none: "결합할인 없음", cham_family: "참쉬운 가족결합", together_bundle: "투게더 결합", internet_family_all_together: "인터넷 가족끼리 다모여 결합", mvno_bundle: "알뜰폰 결합" };
             selectedDiscountTypeEl.textContent = discountTypeDisplayMap[selectedDiscountRadioValue] || selectedDiscountRadioValue;
             
-            installationCostResultEl.textContent = Math.round(calculatedInstallationFee).toLocaleString();
+            // Update Installation Cost Breakdown
+            installationCostBreakdownEl.innerHTML = '';
+            if(baseInstallFee > 0) {
+                installationCostBreakdownEl.innerHTML += `<p class="result-label summary-item">기본 설치비: <span class="result-value">${baseInstallFee.toLocaleString()}</span> 원</p>`;
+            }
+            if(cctvInstallFee > 0) {
+                installationCostBreakdownEl.innerHTML += `<p class="result-label summary-item">CCTV 설치비: <span class="result-value">${cctvInstallFee.toLocaleString()}</span> 원</p>`;
+            }
+            installationCostResultEl.textContent = calculatedInstallationFee.toLocaleString();
             giftCashEl.textContent = giftCashAmount.toLocaleString();
             
             // Show sections and generate scripts
@@ -1216,6 +1233,7 @@
 
 
         function generateMessageScriptsLGU() {
+            // --- Get all necessary data from the page ---
             const internetKey = internetPlanEl.value;
             const isBundleInternetType = document.querySelector('input[name="internetType"]:checked').value === 'bundle';
             const internetPlanInfo = getInternetPlanInfo(internetKey, isBundleInternetType);
@@ -1223,52 +1241,138 @@
             const additionalTvKey = isBundleInternetType ? additionalTvPlanEl.value : 'none';
             const phoneKey = phonePlanEl.value;
             const cctvKey = cctvPlanEl.value;
+            const numMobileLines = parseInt(mobileLinesCountEl.value) || 0;
+            const selectedDiscountRadioValue = document.querySelector('input[name="discountType"]:checked').value;
 
             const preDiscountWired = preDiscountWiredFeeEl.textContent;
             const finalWiredCost = finalWiredFeeEl.textContent;
             const giftAmount = giftAmountEl.textContent;
             const discountTypeName = selectedDiscountTypeEl.textContent;
-            
+            const installFee = installationCostResultEl.textContent;
+            const installTime = document.querySelector('input[name="installationTime"]:checked').value;
+
+            // --- 1. Generate "전산 메모" (System Memo) ---
             let productDescriptionMemo = internetPlanInfo.name !== "미선택" ? internetPlanInfo.name : "인터넷 미선택";
             if (tvKey !== 'none') productDescriptionMemo += ` + ${lguData.tv_plans[tvKey].name}`;
             if (additionalTvKey !== 'none') productDescriptionMemo += ` + (추가)${lguData.additional_tv_options[additionalTvKey].name.split('(')[0].trim()}`;
             if (phoneKey !== 'none') productDescriptionMemo += ` + ${lguData.phone_plans[phoneKey].name}`;
             if (cctvKey !== 'none') productDescriptionMemo += ` + ${lguData.value_added_services[cctvKey].name}`;
 
-            const installFee = installationCostResultEl.textContent;
-            
+            const additionalMemo = `\n\n고객 상황에따른 필수안내사항 완료
+1.  기존 가족 또는 본인 명의 회선 있는 경우 유지 필요 안내 완료
+2. 이사 고객 Y / 추후 소명 발생 시 관련 서류 제출 동의 수긍
+3. 인터넷 설치 후 고객센터로 후결합 요청 안내 완료`;
+
             memoScriptEl.value = `1. 상품 : ${productDescriptionMemo}
 2. 요금 : 할인전(${preDiscountWired}원) / 할인후(${finalWiredCost}원)
 3. 결합할인유형 : ${discountTypeName}
 4. 사은품 : 현금 ${giftAmount}원
 5. 설치비 : ${installFee}원
-6. 기타 : 이사 여부 [   ] / 희망설치일자 [      년   월   일]`;
+6. 기타 : 이사 여부 [    ] / 희망설치일자 [      년   월   일]${additionalMemo}`;
 
-            let productDescriptionInfo = `▶️ ${internetPlanInfo.name}`;
-            if (tvKey !== 'none') productDescriptionInfo += `\n▶️ ${lguData.tv_plans[tvKey].name}`;
-            if (additionalTvKey !== 'none') productDescriptionInfo += `\n▶️ (추가) ${lguData.additional_tv_options[additionalTvKey].name}`;
-            if (phoneKey !== 'none') productDescriptionInfo += `\n▶️ ${lguData.phone_plans[phoneKey].name}`;
-            if (cctvKey !== 'none') productDescriptionInfo += `\n▶️ ${lguData.value_added_services[cctvKey].name}`;
-
-            const selectedDiscountValue = document.querySelector('input[name="discountType"]:checked').value;
-            let discountLine = '';
-            if (selectedDiscountValue !== 'none') {
-                discountLine = `\n▶️ 결합할인유형 : ${discountTypeName}`;
+            // --- 2. Generate "상품 안내 문자" (Product Info Message) ---
+            let infoScriptText = `[미소] 상품 & 사은품 요약 안내\n안녕하세요, 미소 인터넷 입니다.\n고객님께서 오늘 상담 받으신 상품 안내드립니다.\n\n[유선 상품]`;
+            if (internetPlanInfo.name !== "미선택") {
+                infoScriptText += `\n▶️ ${internetPlanInfo.name}`;
+            }
+            if (tvKey !== 'none') {
+                infoScriptText += `\n▶️ ${lguData.tv_plans[tvKey].name}`;
+            }
+            if (additionalTvKey !== 'none') {
+                infoScriptText += `\n▶️ (추가) ${lguData.additional_tv_options[additionalTvKey].name}`;
+            }
+            if (phoneKey !== 'none') {
+                infoScriptText += `\n▶️ ${lguData.phone_plans[phoneKey].name}`;
+            }
+            if (cctvKey !== 'none') {
+                infoScriptText += `\n▶️ ${lguData.value_added_services[cctvKey].name}`;
             }
 
-            infoScriptEl.value = `[미소] U+ 상품 & 사은품 요약 안내\n안녕하세요, 미소 U+ 입니다.\n고객님께서 오늘 상담 받으신 상품 안내드립니다.\n${productDescriptionInfo}${discountLine}\n▶️ 월 ${finalWiredCost}원 (유선상품 기준, 3년 약정)\n▶️ 현금 사은품 ${giftAmount}원\n* 혜택은 실시간으로 바뀔 수 있다는 점 안내드립니다.\n미소 드림.`;
-            
-            const installTime = document.querySelector('input[name="installationTime"]:checked').value;
+            if (numMobileLines > 0) {
+                infoScriptText += `\n\n[결합 모바일]`;
+                const planInputs = Array.from(document.querySelectorAll('.mobile-line-item')).map(item => ({
+                    selector: item.querySelector('.mobile-plan-selector'),
+                    price: parseInt(item.querySelector('.mobile-plan-selector').value),
+                    selectiveDiscountChecked: item.querySelector('.selective-discount-cb').checked
+                }));
+
+                const totalMobileDiscounts = getMobileDiscount(selectedDiscountRadioValue, numMobileLines, planInputs);
+                const totalBundleMobileDiscount = totalMobileDiscounts.totalBundleDiscount;
+
+                planInputs.forEach((input) => {
+                    const selectedOption = input.selector.options[input.selector.selectedIndex];
+                    const planName = selectedOption.dataset.planName;
+                    const planPrice = input.price;
+                    const planUrl = selectedOption.dataset.url || '#';
+
+                    let lineBundleDiscount = 0;
+                    if (numMobileLines >= 2) {
+                        if (selectedDiscountRadioValue === 'cham_family') {
+                            const rule = lguData.mobile_discounts.cham_family.find(r => r.lines.includes(numMobileLines)) || lguData.mobile_discounts.cham_family[lguData.mobile_discounts.cham_family.length - 1];
+                            if (rule) {
+                                if (planPrice >= 69000) lineBundleDiscount = rule.tiers.over_69k;
+                                else if (planPrice >= 47000) lineBundleDiscount = rule.tiers.under_69k;
+                                else lineBundleDiscount = rule.tiers.under_47k;
+                            }
+                        } else if (selectedDiscountRadioValue === 'together_bundle' && totalBundleMobileDiscount > 0) {
+                             const rule = lguData.mobile_discounts.together_bundle.find(r => r.lines.includes(numMobileLines)) || lguData.mobile_discounts.together_bundle[lguData.mobile_discounts.together_bundle.length - 1];
+                             if(rule) {
+                                lineBundleDiscount = rule.discount_per_line;
+                             }
+                        }
+                    }
+
+                    const selectiveDiscount = input.selectiveDiscountChecked ? Math.floor(planPrice * 0.25) : 0;
+                    const lineFinalPrice = planPrice - lineBundleDiscount - selectiveDiscount;
+
+                    infoScriptText += `\n▶️ ${planName} (${planPrice.toLocaleString()}원) - ${lineBundleDiscount.toLocaleString()} (결합) - ${selectiveDiscount.toLocaleString()} (선약) = 최종 ${lineFinalPrice.toLocaleString()}원`;
+                    infoScriptText += `\n   (정보: ${planUrl})`;
+                });
+            }
+
+            infoScriptText += `\n\n[최종 요금 및 혜택]`;
+            infoScriptText += `\n▶️ 월 ${finalWiredCost}원 (${discountTypeName})`;
+            infoScriptText += `\n▶️ 사은품 ${giftAmount} 원`;
+
+            const planCheckInfo = `\n
+----------------------------------------
+♾️ LG 요금제 조회 방법
+당신의 유플러스(고객센터) → 우측 상단 메뉴 → 가입/사용현황 -> 요금제조회변경 -> 데이터 통화 사용량
+
+위 조회를 통해서 고객님의 사용량에 맞는 요금제인지 확인 가능합니다.
+----------------------------------------`;
+            infoScriptText += planCheckInfo;
+
+            infoScriptText += `\n\n* 혜택은 실시간으로 바뀔 수 있다는 점 안내드립니다.`;
+            infoScriptText += `\n* 3년 약정 기준`;
+            infoScriptText += `\n미소 드림.`;
+
+            infoScriptEl.value = infoScriptText;
+
+            // --- 3. Generate "가입 완료 문자" (Completion Message) ---
+            let productDescriptionInfoForComplete = `▶️ ${internetPlanInfo.name}`;
+            if (tvKey !== 'none') productDescriptionInfoForComplete += `\n▶️ ${lguData.tv_plans[tvKey].name}`;
+            if (additionalTvKey !== 'none') productDescriptionInfoForComplete += `\n▶️ (추가) ${lguData.additional_tv_options[additionalTvKey].name}`;
+            if (phoneKey !== 'none') productDescriptionInfoForComplete += `\n▶️ ${lguData.phone_plans[phoneKey].name}`;
+            if (cctvKey !== 'none') productDescriptionInfoForComplete += `\n▶️ ${lguData.value_added_services[cctvKey].name}`;
+
+            let discountLineForComplete = '';
+            if (selectedDiscountRadioValue !== 'none') {
+                discountLineForComplete = `\n▶️ 결합할인유형 : ${discountTypeName}`;
+            }
+
             let installFeeForWeekendMessage = "";
             const currentInstallKey = determineInstallationKey(internetKey !== 'none', tvKey !== 'none', phoneKey !== 'none', additionalTvKey !== 'none');
             if (currentInstallKey && lguData.installation_fees[currentInstallKey] && installTime === 'weekend') {
-                  installFeeForWeekendMessage = (lguData.installation_fees[currentInstallKey].weekend || 0).toLocaleString();
+                installFeeForWeekendMessage = (lguData.installation_fees[currentInstallKey].weekend || 0).toLocaleString();
             }
-            
-            completeScriptEl.value = `[미소] U+ 가입 완료 안내\n안녕하세요, 고객님. 미소 U+입니다.\n✅ 계약이 완료되었어요, 아래 내용은 계약서와 동일한 효력이 있으니 꼼꼼히 읽어주세요.\n⚠️ 3년 약정이며, 아래와 같은 상황에 해당하면 받으셨던 사은품은 환수 됩니다.\n① 1년 이내 해지/정지/명의변경\n② 요금 미납 및 사용정지\n③ 요금제 하향 (상향 시에는 환수 되지 않습니다!)\n④ 개통 1개월 이내 결제수단 지로청구서로 변경\n⚠️ 신규 가입 후 기존에 사용하시던 타사 인터넷/TV는 꼭 직접 해지 해주세요. 자동해지되지 않으며 이럴 경우 요금이 이중 부과되어요.\n⚠️ 3년 이내 해지 시 통신사 본사에 위약금 (할인 반환금) 및 면제된 설치비/장비임대료 등이 반환될 수 있어요.\n✅ 가입 상품 안내\n${productDescriptionInfo}${discountLine}\n▶️ 월 ${finalWiredCost}원 (유선상품, 3년 약정)\n▶️ 설치비 ${installFee}원 첫 달 합산 청구 ${installTime === 'weekday' || !installFeeForWeekendMessage || installFeeForWeekendMessage === "0" ? '' : `(주말/야간 설치 시 ${installFeeForWeekendMessage}원)`}\n▶️ 현금 사은품 ${giftAmount}원\n✅사은품은 설치 후 평일 기준 익주 금요일까지 지급됩니다. (설치 후 연락 필수)\n${installTime !== 'weekday' && installFeeForWeekendMessage && installFeeForWeekendMessage !== "0" ? `-> 주말/야간 설치비는 ${installFeeForWeekendMessage}원 이십니다.` : ''}\n미소 드림.`;
-            
-            sensitiveInfoLinkScriptEl.value = `[LG U+] 아래링크에 고객님의 민감정보를 입력하시면 LG U+로 고객님의 민감정보가 직접 전송됩니다\nhttps://miso.kr/booking/forms/secure-details?querystring=고객님 전화번호`;
 
+            completeScriptEl.value = `[미소] U+ 가입 완료 안내\n안녕하세요, 고객님. 미소 U+입니다.\n✅ 계약이 완료되었어요, 아래 내용은 계약서와 동일한 효력이 있으니 꼼꼼히 읽어주세요.\n⚠️ 3년 약정이며, 아래와 같은 상황에 해당하면 받으셨던 사은품은 환수 됩니다.\n① 1년 이내 해지/정지/명의변경\n② 요금 미납 및 사용정지\n③ 요금제 하향 (상향 시에는 환수 되지 않습니다!)\n④ 개통 1개월 이내 결제수단 지로청구서로 변경\n⚠️ 신규 가입 후 기존에 사용하시던 타사 인터넷/TV는 꼭 직접 해지 해주세요. 자동해지되지 않으며 이럴 경우 요금이 이중 부과되어요.\n⚠️ 3년 이내 해지 시 통신사 본사에 위약금 (할인 반환금) 및 면제된 설치비/장비임대료 등이 반환될 수 있어요.\n✅ 가입 상품 안내\n${productDescriptionInfoForComplete}${discountLineForComplete}\n▶️ 월 ${finalWiredCost}원 (유선상품, 3년 약정)\n▶️ 설치비 ${installFee}원 첫 달 합산 청구 ${installTime === 'weekday' || !installFeeForWeekendMessage || installFeeForWeekendMessage === "0" ? '' : `(주말/야간 설치 시 ${installFeeForWeekendMessage}원)`}\n▶️ 현금 사은품 ${giftAmount}원\n✅사은품은 설치 후 평일 기준 익주 금요일까지 지급됩니다. (설치 후 연락 필수)\n${installTime !== 'weekday' && installFeeForWeekendMessage && installFeeForWeekendMessage !== "0" ? `-> 주말/야간 설치비는 ${installFeeForWeekendMessage}원 이십니다.` : ''}\n미소 드림.`;
+
+            // --- 4. Generate "민감정보 전송용 링크" (Sensitive Info Link) ---
+            sensitiveInfoLinkScriptEl.value = `[LG U+] 아래 링크에 고객님의 민감정보를 입력하시면 LG로 고객님의 민감정보가 직접 전송후 접수 됩니다.\n\n입력후 접수 완료 라고 문자 주시면 담당 상담원이 접수 확인후 필수 안내사항 안내 드리겠습니다.\n\nhttps://miso.kr/booking/forms/secure-details?querystring=고객님 전화번호`;
+
+            // --- 5. Generate "U+알뜰모바일" Info ---
             mvnoInfoScriptEl.value = 'U+알뜰모바일 인터넷 결합 요금제 정보: https://www.uplusmvno.com/plan/plan-list';
         }
 
