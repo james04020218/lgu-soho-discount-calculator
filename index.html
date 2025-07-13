@@ -486,12 +486,12 @@
             { "plan_name": "5G 심플+", "network_type": "5G", "price": 61000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002860" },
             { "plan_name": "5G 베이직+", "network_type": "5G", "price": 59000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002855" },
             { "plan_name": "5G 라이트+", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0001801" },
-            { "plan_name": "5G 복지 55 (복지할인 대상자)", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-welfare/LPZ0002861" },
+            { "plan_name": "5G 복지 55 (복지할인 대상자)", "network_type": "5G", "price": 55000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-welfare/LPZ0000349" },
             { "plan_name": "5G 슬림+", "network_type": "5G", "price": 47000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0001799" },
             { "plan_name": "5G 라이트 청소년 (만 18세 이하)", "network_type": "5G", "price": 45000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-youth/LPZ0000417" },
             { "plan_name": "5G 키즈 45 (만 12세 이하)", "network_type": "5G", "price": 45000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-youth/LPZ0002811" },
             { "plan_name": "5G 키즈 39 (만 12세 이하)", "network_type": "5G", "price": 39000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-youth/LPZ0002810" },
-            { "plan_name": "5G 미니", "network_type": "5G", "price": 37000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-data/LPZ0002854" },
+            { "plan_name": "5G 미니", "network_type": "5G", "price": 37000, "url": "https://www.lguplus.com/mobile/plan/mplan/5g-all/5g-unlimited/LPZ1000325" },
             { "plan_name": "LTE 데이터 33", "network_type": "LTE", "price": 33000, "url": "https://www.lguplus.com/mobile/plan/mplan/lte-all/lte-data/LPZ0000284" }
         ];
 
@@ -1389,27 +1389,18 @@
 
         function copyToClipboard(elementId, feedbackElementId) {
             const textarea = document.getElementById(elementId);
-            // Fallback for older browsers
-            if (!navigator.clipboard) {
-                try {
-                    textarea.select();
-                    document.execCommand('copy');
-                    const feedbackEl = document.getElementById(feedbackElementId);
-                    feedbackEl.textContent = '복사되었습니다!';
-                    setTimeout(() => { feedbackEl.textContent = ''; }, 2000);
-                } catch (err) {
-                    console.error('Fallback: Oops, unable to copy', err);
-                }
-                return;
-            }
-            // Modern async clipboard API
-            navigator.clipboard.writeText(textarea.value).then(() => {
+            try {
+                textarea.select();
+                document.execCommand('copy');
                 const feedbackEl = document.getElementById(feedbackElementId);
                 feedbackEl.textContent = '복사되었습니다!';
                 setTimeout(() => { feedbackEl.textContent = ''; }, 2000);
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
+            } catch (err) {
+                console.error('클립보드 복사에 실패했습니다.', err);
+                const feedbackEl = document.getElementById(feedbackElementId);
+                feedbackEl.textContent = '복사 실패!';
+                 setTimeout(() => { feedbackEl.textContent = ''; }, 2000);
+            }
         }
 
         // --- Initializer ---
