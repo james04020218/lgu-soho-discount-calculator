@@ -728,14 +728,24 @@
         function getMobileDiscount(discountType, numLines, planInputs) {
             let totalBundleDiscount = 0;
             let totalSelectiveDiscount = 0;
+            
+            const validPlanInputs = planInputs.filter(input => !isNaN(input.price));
+            if (numLines < 2 || validPlanInputs.length === 0) {
+                planInputs.forEach(input => {
+                    if (!isNaN(input.price) && input.selectiveDiscountChecked) {
+                        totalSelectiveDiscount += Math.floor(input.price * 0.25);
+                    }
+                });
+                return { totalBundleDiscount: 0, totalSelectiveDiscount, total: totalSelectiveDiscount };
+            }
 
             const bundleRules = lguData.mobile_discounts[discountType];
-            if (numLines >= 2 && bundleRules) {
+            if (bundleRules) {
                 if (discountType === 'cham_family') {
                     const lineCountForRule = Math.min(numLines, 10);
                     const rule = bundleRules.find(r => r.lines.includes(lineCountForRule)) || bundleRules[bundleRules.length - 1];
                     if (rule) {
-                        planInputs.forEach(input => {
+                        validPlanInputs.forEach(input => {
                             if (input.price >= 69000) totalBundleDiscount += rule.tiers.over_69k;
                             else if (input.price >= 47000) totalBundleDiscount += rule.tiers.under_69k;
                             else totalBundleDiscount += rule.tiers.under_47k;
@@ -745,7 +755,7 @@
                     const lineCountForRule = Math.min(numLines, 5);
                     const rule = bundleRules.find(r => r.lines.includes(lineCountForRule)) || bundleRules[bundleRules.length - 1];
                     if (rule) {
-                        const eligibleLines = planInputs.filter(p => p.price >= 85000).length;
+                        const eligibleLines = validPlanInputs.filter(p => p.price >= 85000).length;
                         if (eligibleLines === numLines) {
                             totalBundleDiscount = numLines * rule.discount_per_line;
                         }
@@ -754,7 +764,7 @@
             }
 
             planInputs.forEach(input => {
-                if (input.selectiveDiscountChecked) {
+                if (!isNaN(input.price) && input.selectiveDiscountChecked) {
                     totalSelectiveDiscount += Math.floor(input.price * 0.25);
                 }
             });
@@ -764,7 +774,6 @@
 
         function updateMobileLinesInputsLGU() {
             const count = parseInt(mobileLinesCountEl.value) || 0;
-            const selectedDiscount = document.querySelector('input[name="discountType"]:checked').value;
             mobileLinesContainerEl.innerHTML = '';
             for (let i = 0; i < count; i++) {
                 const div = document.createElement('div');
@@ -776,6 +785,14 @@
                 const select = document.createElement('select');
                 select.id = `mobilePlan${i}`;
                 select.className = 'select-field mobile-plan-selector';
+                
+                // "요금제 선택없음" 옵션 추가
+                const noneOption = document.createElement('option');
+                noneOption.value = "none";
+                noneOption.textContent = "요금제 선택없음";
+                select.appendChild(noneOption);
+
+                const selectedDiscount = document.querySelector('input[name="discountType"]:checked').value;
                 lguMobilePlans.forEach(plan => {
                     const option = document.createElement('option');
                     option.value = plan.price;
@@ -787,8 +804,10 @@
                     }
                     select.appendChild(option);
                 });
-                if (selectedDiscount === 'cham_family') select.value = "33000";
-                if (selectedDiscount === 'together_bundle') select.value = "85000";
+
+                // 기본값 설정
+                select.value = "none";
+
                 const checkboxLabel = document.createElement('label');
                 checkboxLabel.className = 'flex items-center mt-2 text-sm text-slate-600';
                 const checkbox = document.createElement('input');
@@ -1024,7 +1043,7 @@
                 if (discountTypeKeyFromJson === "together_bundle") {
                     const internetDetails = getInternetPlanInfo(internetTypeKey, isBundleInternetType);
                     const internetSpeedMbps = internetDetails.speed_mbps || 0;
-                    const mobilePlanPrices = Array.from(document.querySelectorAll('.mobile-plan-selector')).map(s => parseInt(s.value));
+                    const mobilePlanPrices = Array.from(document.querySelectorAll('.mobile-plan-selector')).map(s => parseInt(s.value)).filter(p => !isNaN(p));
                     const highTierMobileCount = mobilePlanPrices.filter(p => p >= 85000).length;
                     if (internetSpeedMbps >= 500 && highTierMobileCount === numMobileLines && numMobileLines >= 2) {
                         return discountsForCategory[internetTypeKey][discountTypeKeyFromJson].discount;
@@ -1079,18 +1098,24 @@
             let totalMobileFinalCost = 0;
             let totalMobileDiscount = 0;
             mobileDiscountResultListEl.innerHTML = '';
-            if (numMobileLines > 0) {
+            
+            const planInputs = Array.from(document.querySelectorAll('.mobile-line-item')).map(item => ({
+                selector: item.querySelector('.mobile-plan-selector'),
+                price: parseInt(item.querySelector('.mobile-plan-selector').value),
+                selectiveDiscountChecked: item.querySelector('.selective-discount-cb').checked
+            }));
+
+            const validPlanInputs = planInputs.filter(input => !isNaN(input.price));
+
+            if (validPlanInputs.length > 0) {
                 mobileDiscountDetailsContainerEl.classList.remove('hidden');
-                const planInputs = Array.from(document.querySelectorAll('.mobile-line-item')).map(item => ({
-                    selector: item.querySelector('.mobile-plan-selector'),
-                    price: parseInt(item.querySelector('.mobile-plan-selector').value),
-                    selectiveDiscountChecked: item.querySelector('.selective-discount-cb').checked
-                }));
                 
                 const mobileDiscounts = getMobileDiscount(selectedDiscountRadioValue, numMobileLines, planInputs);
                 const totalBundleMobileDiscount = mobileDiscounts.totalBundleDiscount;
                 
                 planInputs.forEach((input, i) => {
+                    if(isNaN(input.price)) return;
+
                     const selectedOption = input.selector.options[input.selector.selectedIndex];
                     const planName = selectedOption.dataset.planName;
                     const planPrice = input.price;
@@ -1288,32 +1313,34 @@
                 infoScriptText += `\n▶️ ${lguData.value_added_services[cctvKey].name}`;
             }
 
-            if (numMobileLines > 0) {
-                infoScriptText += `\n\n[결합 모바일]`;
-                const planInputs = Array.from(document.querySelectorAll('.mobile-line-item')).map(item => ({
-                    selector: item.querySelector('.mobile-plan-selector'),
-                    price: parseInt(item.querySelector('.mobile-plan-selector').value),
-                    selectiveDiscountChecked: item.querySelector('.selective-discount-cb').checked
-                }));
+            const mobilePlanInputs = Array.from(document.querySelectorAll('.mobile-line-item')).map(item => {
+                const selector = item.querySelector('.mobile-plan-selector');
+                const selectedOption = selector.options[selector.selectedIndex];
+                return {
+                    selector: selector,
+                    price: parseInt(selector.value),
+                    selectiveDiscountChecked: item.querySelector('.selective-discount-cb').checked,
+                    planName: selectedOption.dataset.planName,
+                    planUrl: selectedOption.dataset.url
+                };
+            }).filter(input => !isNaN(input.price)); // Filter out "요금제 선택없음"
 
-                const totalMobileDiscounts = getMobileDiscount(selectedDiscountRadioValue, numMobileLines, planInputs);
+            if (mobilePlanInputs.length > 0) {
+                infoScriptText += `\n\n[결합 모바일]`;
+                
+                const totalMobileDiscounts = getMobileDiscount(selectedDiscountRadioValue, numMobileLines, mobilePlanInputs);
                 const totalBundleMobileDiscount = totalMobileDiscounts.totalBundleDiscount;
 
-                planInputs.forEach((input) => {
-                    const selectedOption = input.selector.options[input.selector.selectedIndex];
-                    const planName = selectedOption.dataset.planName;
+                mobilePlanInputs.forEach((input) => {
+                    const planName = input.planName;
                     const planPrice = input.price;
-                    const planUrl = selectedOption.dataset.url || '#';
+                    const planUrl = input.planUrl || '#';
 
                     let lineBundleDiscount = 0;
                     if (numMobileLines >= 2) {
                         if (selectedDiscountRadioValue === 'cham_family') {
-                            const rule = lguData.mobile_discounts.cham_family.find(r => r.lines.includes(numMobileLines)) || lguData.mobile_discounts.cham_family[lguData.mobile_discounts.cham_family.length - 1];
-                            if (rule) {
-                                if (planPrice >= 69000) lineBundleDiscount = rule.tiers.over_69k;
-                                else if (planPrice >= 47000) lineBundleDiscount = rule.tiers.under_69k;
-                                else lineBundleDiscount = rule.tiers.under_47k;
-                            }
+                            const tempInputs = [{price: planPrice}];
+                            lineBundleDiscount = getMobileDiscount('cham_family', numMobileLines, tempInputs).totalBundleDiscount;
                         } else if (selectedDiscountRadioValue === 'together_bundle' && totalBundleMobileDiscount > 0) {
                              const rule = lguData.mobile_discounts.together_bundle.find(r => r.lines.includes(numMobileLines)) || lguData.mobile_discounts.together_bundle[lguData.mobile_discounts.together_bundle.length - 1];
                              if(rule) {
@@ -1364,7 +1391,9 @@
             let installFeeForWeekendMessage = "";
             const currentInstallKey = determineInstallationKey(internetKey !== 'none', tvKey !== 'none', phoneKey !== 'none', additionalTvKey !== 'none');
             if (currentInstallKey && lguData.installation_fees[currentInstallKey] && installTime === 'weekend') {
-                installFeeForWeekendMessage = (lguData.installation_fees[currentInstallKey].weekend || 0).toLocaleString();
+                const cctvInstallFee = (cctvKey !== 'none') ? 14200 : 0;
+                const weekendBaseFee = lguData.installation_fees[currentInstallKey].weekend || 0;
+                installFeeForWeekendMessage = (weekendBaseFee + cctvInstallFee).toLocaleString();
             }
 
             completeScriptEl.value = `[미소] U+ 가입 완료 안내\n안녕하세요, 고객님. 미소 U+입니다.\n✅ 계약이 완료되었어요, 아래 내용은 계약서와 동일한 효력이 있으니 꼼꼼히 읽어주세요.\n⚠️ 3년 약정이며, 아래와 같은 상황에 해당하면 받으셨던 사은품은 환수 됩니다.\n① 1년 이내 해지/정지/명의변경\n② 요금 미납 및 사용정지\n③ 요금제 하향 (상향 시에는 환수 되지 않습니다!)\n④ 개통 1개월 이내 결제수단 지로청구서로 변경\n⚠️ 신규 가입 후 기존에 사용하시던 타사 인터넷/TV는 꼭 직접 해지 해주세요. 자동해지되지 않으며 이럴 경우 요금이 이중 부과되어요.\n⚠️ 3년 이내 해지 시 통신사 본사에 위약금 (할인 반환금) 및 면제된 설치비/장비임대료 등이 반환될 수 있어요.\n✅ 가입 상품 안내\n${productDescriptionInfoForComplete}${discountLineForComplete}\n▶️ 월 ${finalWiredCost}원 (유선상품, 3년 약정)\n▶️ 설치비 ${installFee}원 첫 달 합산 청구 ${installTime === 'weekday' || !installFeeForWeekendMessage || installFeeForWeekendMessage === "0" ? '' : `(주말/야간 설치 시 ${installFeeForWeekendMessage}원)`}\n▶️ 현금 사은품 ${giftAmount}원\n✅사은품은 설치 후 평일 기준 익주 금요일까지 지급됩니다. (설치 후 연락 필수)\n${installTime !== 'weekday' && installFeeForWeekendMessage && installFeeForWeekendMessage !== "0" ? `-> 주말/야간 설치비는 ${installFeeForWeekendMessage}원 이십니다.` : ''}\n미소 드림.`;
